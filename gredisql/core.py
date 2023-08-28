@@ -10,7 +10,7 @@ import json
 
 import redis
 from ariadne import load_schema_from_path, QueryType, make_executable_schema, graphql_sync
-from ariadne.explorer.playground import PLAYGROUND_HTML, ExplorerPlayground
+from ariadne.explorer.playground import ExplorerPlayground
 
 from flask import Flask, request, jsonify
 
