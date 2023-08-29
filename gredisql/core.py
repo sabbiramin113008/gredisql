@@ -24,7 +24,7 @@ rr = redis.StrictRedis(host=REDIS_host,
 
 @strawberry.type
 class CommonString:
-    response: str
+    response: typing.Optional[str]
 
 
 class CommonDict:
@@ -90,6 +90,73 @@ class Query:
         resp = rr.mget(keys=keys)
         return resp
 
+    @strawberry.field
+    def incrby(self, name: str, amount: int = 1) -> str:
+        return rr.incrby(name=name, amount=amount)
+
+    @strawberry.field
+    def decrby(self, name: str, amount: int = 1) -> str:
+        return rr.decrby(name=name, amount=amount)
+
+    @strawberry.field
+    def incrbyfloat(self, name: str, amount: float = 1.0) -> str:
+        return rr.incrbyfloat(name=name, amount=amount)
+
+    @strawberry.field
+    def keys(self, pattern: str) -> typing.List[str]:
+        return rr.keys(pattern=pattern)
+
+    @strawberry.field
+    def delete(self, names: typing.List[str]) -> str:
+        return rr.delete(*names)
+
+    @strawberry.field
+    def exists(self, names: typing.List[str]) -> str:
+        return rr.exists(*names)
+
+    @strawberry.field
+    def append(self, key: str, value: str) -> str:
+        return rr.append(key=key, value=value)
+
+    @strawberry.field
+    def expire(
+            self,
+            name: str,
+            time: int,
+            nx: typing.Optional[bool] = False,
+            xx: typing.Optional[bool] = False,
+            gt: typing.Optional[bool] = False,
+            lt: typing.Optional[bool] = False) -> str:
+        return rr.expire(
+            name=name,
+            time=time,
+            nx=nx,
+            xx=xx,
+            gt=gt,
+            lt=lt
+        )
+
+    @strawberry.field
+    def expireat(
+            self,
+            name: str,
+            when: int,
+            nx: typing.Optional[bool] = False,
+            xx: typing.Optional[bool] = False,
+            gt: typing.Optional[bool] = False,
+            lt: typing.Optional[bool] = False) -> str:
+        return rr.expireat(
+            name=name,
+            when=when,
+            nx=nx,
+            xx=xx,
+            gt=gt,
+            lt=lt
+        )
+
+    @strawberry.field
+    def getdel(self, name: str) -> str:
+        return rr.getdel(name=name)
 
 
 schema = strawberry.Schema(Query)
