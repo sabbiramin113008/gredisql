@@ -20,4 +20,5 @@ rr = redis.StrictRedis(host=REDIS_host,
                        decode_responses=REDIS_decode_response)
 
 if __name__ == '__main__':
-    print(rr.info())
+    # print(rr.info())
+    print(rr.mset({'hello': 'world'}))

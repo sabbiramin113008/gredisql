@@ -31,6 +31,12 @@ class CommonDict:
     response: dict
 
 
+@strawberry.input
+class KeyVal:
+    key: str
+    value: str
+
+
 @strawberry.type
 class Query:
     @strawberry.field
@@ -72,6 +78,18 @@ class Query:
         info_dict = rr.info()
         print(info_dict)
         return CommonString(response=str(info_dict))
+
+    @strawberry.field
+    def mset(self, mappings: typing.List[KeyVal]) -> bool:
+        mappings = {m.key: m.value for m in mappings}
+        resp = rr.mset(mappings)
+        return resp
+
+    @strawberry.field
+    def mget(self, keys: typing.List[str]) -> typing.List[str]:
+        resp = rr.mget(keys=keys)
+        return resp
+
 
 
 schema = strawberry.Schema(Query)
