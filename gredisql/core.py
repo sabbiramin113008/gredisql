@@ -2,21 +2,14 @@
 
 """
 author: S.M. Sabbir Amin
-date: 12 Mar 2023
-email: sabbir.amin@goava.com, sabbiramin.cse11ruet@gmail.com 
+date: 30 Aug 2023
+email: sabbir.amin@goava.com, sabbiramin.cse11ruet@gmail.com
 
 """
-import json
 
+import typing
 import redis
-from ariadne import load_schema_from_path, QueryType, make_executable_schema, graphql_sync
-from ariadne.explorer.playground import ExplorerPlayground
-
-from flask import Flask, request, jsonify
-
-type_defs = load_schema_from_path("../schema.graphql")
-query = QueryType()
-# mutation = MutationType()
+import strawberry
 
 REDIS_host = 'localhost'
 REDIS_port = 6379
@@ -29,53 +22,82 @@ rr = redis.StrictRedis(host=REDIS_host,
                        decode_responses=REDIS_decode_response)
 
 
-@query.field("set")
-def resolve_set(_, info, name, value, ex=None):
-    status = rr.set(name, json.dumps(value), ex)
-    response = {
-        'status': status
-    }
-    return response
+@strawberry.type
+class CommonString:
+    response: str
 
 
-@query.field("get")
-def resolve_set(_, info, name):
-    value = rr.get(name)
-    response = {
-        'value': json.loads(value) if value else None,
-        'status': True if value else False
-
-    }
-    return response
+class CommonDict:
+    response: dict
 
 
-schema = make_executable_schema(type_defs, query)
-app = Flask(__name__)
+@strawberry.type
+class Query:
+    @strawberry.field
+    def set(self,
+            name: str,
+            value: str,
+            ex: typing.Optional[int] = None,
+            px: typing.Optional[int] = None,
+            nx: typing.Optional[bool] = False,
+            xx: typing.Optional[bool] = False,
+            keepttl: typing.Optional[bool] = False,
+            get: typing.Optional[bool] = False,
+            exat: typing.Optional[int] = None,
+            pxat: typing.Optional[int] = None
+            ) -> CommonString:
+        print(name, value, get)
+        resp = rr.set(
+            name=name,
+            value=value,
+            ex=ex,
+            px=px,
+            nx=nx,
+            xx=xx,
+            keepttl=keepttl,
+            get=get,
+            exat=exat,
+            pxat=pxat
+        )
+        print('resp:', resp)
+        return CommonString(response=resp)
 
-PLAYGROUND_HTML = ExplorerPlayground(title="Cool API").html(None)
+    @strawberry.field
+    def get(self, name: str) -> CommonString:
+        resp = rr.get(name=name)
+        return CommonString(response=resp)
+
+    @strawberry.field
+    def info(self) -> CommonString:
+        info_dict = rr.info()
+        print(info_dict)
+        return CommonString(response=str(info_dict))
 
 
-@app.route("/graphql", methods=["GET"])
-def graphql_playground():
-    return PLAYGROUND_HTML, 200
+schema = strawberry.Schema(Query)
+
+from flask import Flask
+from strawberry.flask.views import GraphQLView
 
 
-@app.route("/graphql", methods=["POST"])
-def graphql_server():
-    data = request.get_json()
-    success, result = graphql_sync(
-        schema,
-        data,
-        context_value=request,
-        debug=app.debug
-    )
+class Server:
+    def __init__(self,
+                 host: str = 'localhost',
+                 port: int = 5055,
+                 debug=True
+                 ):
+        self.app = Flask(__name__)
+        self.host = host
+        self.port = port
+        self.debug = debug
+        self.app.add_url_rule(
+            "/graphql",
+            view_func=GraphQLView.as_view("graphql_view", schema=schema),
+        )
 
-    status_code = 200 if success else 400
-    return jsonify(result), status_code
-
-
-if __name__ == "__main__":
-    app.run(
-        host='localhost',
-        port=5055,
-        debug=True)
+    def run(self):
+        self.app.run(
+            host=self.host,
+            port=self.port,
+            debug=self.debug
+        )
