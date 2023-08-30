@@ -21,4 +21,5 @@ rr = redis.StrictRedis(host=REDIS_host,
 
 if __name__ == '__main__':
     # print(rr.info())
-    print(rr.mset({'hello': 'world'}))
+    print(rr.sdiff(['animals','mammals']))
+    # print(rr.mset({'hello': 'world'}))

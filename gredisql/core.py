@@ -74,6 +74,18 @@ class Query:
         return CommonString(response=resp)
 
     @strawberry.field
+    def getex(self,
+              name: str,
+              ex: typing.Optional[int] = None,
+              px: typing.Optional[int] = None,
+              exat: typing.Optional[int] = None,
+              pxat: typing.Optional[int] = None,
+              persist: bool = False
+              ) -> CommonString:
+        resp = rr.getex(name=name, ex=ex, px=px, exat=exat, pxat=pxat, persist=persist)
+        return CommonString(response=resp)
+
+    @strawberry.field
     def info(self) -> CommonString:
         info_dict = rr.info()
         print(info_dict)
@@ -157,6 +169,34 @@ class Query:
     @strawberry.field
     def getdel(self, name: str) -> str:
         return rr.getdel(name=name)
+
+    ## Redis Sets
+    @strawberry.field
+    def sadd(self, name: str, values: typing.List[str]) -> int:
+        return rr.sadd(name, *values)
+
+    @strawberry.field
+    def scard(self, name: str) -> int:
+        return rr.scard(name=name)
+
+    @strawberry.field
+    def sdiff(self, keys: typing.List[str],
+              ) -> typing.List[str]:
+        answers = rr.sdiff(keys)
+        print('answers:', answers)
+        return answers
+
+    @strawberry.field
+    def sdiffstore(self,
+                   keys: typing.List[str],
+                   dest: str) -> int:
+        return rr.sdiffstore(dest=dest,
+                             keys=keys)
+
+    @strawberry.field
+    def sinter(self,
+               keys: typing.List[str]) -> typing.List[str]:
+        return rr.sinter(keys)
 
 
 schema = strawberry.Schema(Query)
