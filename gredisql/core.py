@@ -198,6 +198,48 @@ class Query:
                keys: typing.List[str]) -> typing.List[str]:
         return rr.sinter(keys)
 
+    @strawberry.field
+    def sinterstore(self,
+                    keys: typing.List[str],
+                    dest: str
+                    ) -> int:
+        return rr.sinterstore(dest=dest, keys=keys)
+
+    @strawberry.field
+    def sismember(self,
+                  name: str,
+                  value: str
+                  ) -> int:
+        return rr.sismember(name=name, value=value)
+
+    @strawberry.field
+    def smembers(self,
+                 name: str
+                 ) -> typing.List[str]:
+        return rr.smembers(name=name)
+
+    @strawberry.field
+    def sismember(self,
+                  name: str,
+                  value: str
+                  ) -> int:
+        return rr.sismember(name=name, value=value)
+
+    @strawberry.field
+    def smove(self,
+              src: str,
+              dst: str,
+              value: str
+              ) -> int:
+        return rr.smove(src=src, dst=dst, value=value)
+
+    @strawberry.field
+    def spop(self,
+             name: str,
+             count: typing.Optional[int]
+             ) -> int:
+        return rr.spop(name=name, count=count)
+
 
 schema = strawberry.Schema(Query)
 
