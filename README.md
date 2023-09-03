@@ -15,8 +15,15 @@ A GraphQL interface for Redis Database.
 5. Not `all` Redis commands are found in the implementation, I'll try to cover it in the process. 
 
 ## Inspiration and Tools I used
+1. `redis==5.0.0` is used to communicate with the Redis database. 
+2. `strawberry-graphql` is used to do the heavy lifting. Also, I tried `ariadne` which is also another cool tool to try with.
 
 ## Features and Future Plans
+1. [X] String Commands.
+2. [X] List Commands. 
+3. [X] Set Commands. 
+
+And many more to come in the future iteration.
 
 ## Quick Starting the GraphQL Server
 ```python
@@ -26,4 +33,4 @@ if __name__ == "__main__":
     server = Server()
     server.run()
 ```
-You can specify the `host`, `port` and `debug` mode as you like. 
+You can specify the `host`, `port` and `debug` mode in while instantiating the `GraphQL` server. 
