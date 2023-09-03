@@ -1,6 +1,15 @@
 ## GredisQL
 A GraphQL interface for Redis Database. 
 
+## How To Install
+```python
+pip install gredisql
+```
+If you find this project interesting, you can always appreciate it by giving it a Star. :D 
+
+## A Background of `GredisQL`
+![background_image](/img/gredisql-bg.png)
+
 ##  Motivation
 1. I was bored, been sick for a while, had to lie on the bed. So I needed to create something. 
 2. Redis has Web interface ( actually a REST interface), so I urged to build one in GraphQL. 
@@ -34,3 +43,23 @@ if __name__ == "__main__":
     server.run()
 ```
 You can specify the `host`, `port` and `debug` mode in while instantiating the `GraphQL` server. 
+Simply write, 
+```python
+
+if __name__ == "__main__":
+
+    REDIS_HOST = 'redis-4343.c8.us-east-1-4.ec2.cloud.redislabs.com'
+    REDIS_PORT = 16292
+    REDIS_PASSWORD = 'your-secret-password'
+
+    from gredisql.core import Server
+
+    server = Server(
+         REDIS_HOST=REDIS_HOST,
+         REDIS_PORT=REDIS_PORT,
+         REDIS_PASSWORD=REDIS_PASSWORD
+    )
+    server.run()
+
+```
+Now navigate to `http://localhost:5055/graphql` and voilà. 
