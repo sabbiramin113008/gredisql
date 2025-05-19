@@ -18,14 +18,37 @@ class CommonString:
     response: typing.Optional[str]
 
 
+@strawberry.type
+class CommonInt:
+    response: int
+
+
+@strawberry.type
+class CommonList:
+    response: typing.List[str]
+
+
+@strawberry.type
+class KeyValuePair:
+    key: str
+    value: str
+
+
+@strawberry.type
 class CommonDict:
-    response: dict
+    response: typing.List[KeyValuePair]
 
 
 @strawberry.input
 class KeyVal:
     key: str
     value: str
+
+
+@strawberry.input
+class ScoreMember:
+    score: float
+    member: str
 
 
 class Server:
@@ -82,7 +105,7 @@ class Server:
                     exat=exat,
                     pxat=pxat
                 )
-                return CommonString(response=resp)
+                return CommonString(response=str(resp))
 
             @strawberry.field
             def get(self, name: str) -> CommonString:
@@ -104,47 +127,46 @@ class Server:
             @strawberry.field
             def info(self) -> CommonString:
                 info_dict = rr.info()
-                print(info_dict)
                 return CommonString(response=str(info_dict))
 
             @strawberry.field
-            def mset(self, mappings: typing.List[KeyVal]) -> bool:
+            def mset(self, mappings: typing.List[KeyVal]) -> CommonString:
                 mappings = {m.key: m.value for m in mappings}
                 resp = rr.mset(mappings)
-                return resp
+                return CommonString(response=str(resp))
 
             @strawberry.field
-            def mget(self, keys: typing.List[str]) -> typing.List[str]:
+            def mget(self, keys: typing.List[str]) -> CommonList:
                 resp = rr.mget(keys=keys)
-                return resp
+                return CommonList(response=resp)
 
             @strawberry.field
-            def incrby(self, name: str, amount: int = 1) -> str:
-                return rr.incrby(name=name, amount=amount)
+            def incrby(self, name: str, amount: int = 1) -> CommonString:
+                return CommonString(response=str(rr.incrby(name=name, amount=amount)))
 
             @strawberry.field
-            def decrby(self, name: str, amount: int = 1) -> str:
-                return rr.decrby(name=name, amount=amount)
+            def decrby(self, name: str, amount: int = 1) -> CommonString:
+                return CommonString(response=str(rr.decrby(name=name, amount=amount)))
 
             @strawberry.field
-            def incrbyfloat(self, name: str, amount: float = 1.0) -> str:
-                return rr.incrbyfloat(name=name, amount=amount)
+            def incrbyfloat(self, name: str, amount: float = 1.0) -> CommonString:
+                return CommonString(response=str(rr.incrbyfloat(name=name, amount=amount)))
 
             @strawberry.field
-            def keys(self, pattern: str) -> typing.List[str]:
-                return rr.keys(pattern=pattern)
+            def keys(self, pattern: str) -> CommonList:
+                return CommonList(response=rr.keys(pattern=pattern))
 
             @strawberry.field
-            def delete(self, names: typing.List[str]) -> str:
-                return rr.delete(*names)
+            def delete(self, names: typing.List[str]) -> CommonString:
+                return CommonString(response=str(rr.delete(*names)))
 
             @strawberry.field
-            def exists(self, names: typing.List[str]) -> str:
-                return rr.exists(*names)
+            def exists(self, names: typing.List[str]) -> CommonString:
+                return CommonString(response=str(rr.exists(*names)))
 
             @strawberry.field
-            def append(self, key: str, value: str) -> str:
-                return rr.append(key=key, value=value)
+            def append(self, key: str, value: str) -> CommonString:
+                return CommonString(response=str(rr.append(key=key, value=value)))
 
             @strawberry.field
             def expire(
@@ -154,15 +176,15 @@ class Server:
                     nx: typing.Optional[bool] = False,
                     xx: typing.Optional[bool] = False,
                     gt: typing.Optional[bool] = False,
-                    lt: typing.Optional[bool] = False) -> str:
-                return rr.expire(
+                    lt: typing.Optional[bool] = False) -> CommonString:
+                return CommonString(response=str(rr.expire(
                     name=name,
                     time=time,
                     nx=nx,
                     xx=xx,
                     gt=gt,
                     lt=lt
-                )
+                )))
 
             @strawberry.field
             def expireat(
@@ -172,88 +194,150 @@ class Server:
                     nx: typing.Optional[bool] = False,
                     xx: typing.Optional[bool] = False,
                     gt: typing.Optional[bool] = False,
-                    lt: typing.Optional[bool] = False) -> str:
-                return rr.expireat(
+                    lt: typing.Optional[bool] = False) -> CommonString:
+                return CommonString(response=str(rr.expireat(
                     name=name,
                     when=when,
                     nx=nx,
                     xx=xx,
                     gt=gt,
                     lt=lt
-                )
+                )))
 
             @strawberry.field
-            def getdel(self, name: str) -> str:
-                return rr.getdel(name=name)
-
-            ## Redis Sets
-            @strawberry.field
-            def sadd(self, name: str, values: typing.List[str]) -> int:
-                return rr.sadd(name, *values)
+            def getdel(self, name: str) -> CommonString:
+                return CommonString(response=rr.getdel(name=name))
 
             @strawberry.field
-            def scard(self, name: str) -> int:
-                return rr.scard(name=name)
+            def sadd(self, name: str, values: typing.List[str]) -> CommonString:
+                return CommonString(response=str(rr.sadd(name, *values)))
 
             @strawberry.field
-            def sdiff(self, keys: typing.List[str],
-                      ) -> typing.List[str]:
-                answers = rr.sdiff(keys)
-                return answers
+            def scard(self, name: str) -> CommonString:
+                return CommonString(response=str(rr.scard(name=name)))
 
             @strawberry.field
-            def sdiffstore(self,
-                           keys: typing.List[str],
-                           dest: str) -> int:
-                return rr.sdiffstore(dest=dest,
-                                     keys=keys)
+            def sdiff(self, keys: typing.List[str]) -> CommonList:
+                return CommonList(response=rr.sdiff(keys))
 
             @strawberry.field
-            def sinter(self,
-                       keys: typing.List[str]) -> typing.List[str]:
-                return rr.sinter(keys)
+            def sdiffstore(self, keys: typing.List[str], dest: str) -> CommonString:
+                return CommonString(response=str(rr.sdiffstore(dest=dest, keys=keys)))
 
             @strawberry.field
-            def sinterstore(self,
-                            keys: typing.List[str],
-                            dest: str
-                            ) -> int:
-                return rr.sinterstore(dest=dest, keys=keys)
+            def sinter(self, keys: typing.List[str]) -> CommonList:
+                return CommonList(response=rr.sinter(keys))
 
             @strawberry.field
-            def sismember(self,
-                          name: str,
-                          value: str
-                          ) -> int:
-                return rr.sismember(name=name, value=value)
+            def sinterstore(self, keys: typing.List[str], dest: str) -> CommonString:
+                return CommonString(response=str(rr.sinterstore(dest=dest, keys=keys)))
 
             @strawberry.field
-            def smembers(self,
-                         name: str
-                         ) -> typing.List[str]:
-                return rr.smembers(name=name)
+            def sismember(self, name: str, value: str) -> CommonString:
+                return CommonString(response=str(rr.sismember(name=name, value=value)))
 
             @strawberry.field
-            def sismember(self,
-                          name: str,
-                          value: str
-                          ) -> int:
-                return rr.sismember(name=name, value=value)
+            def smembers(self, name: str) -> CommonList:
+                return CommonList(response=rr.smembers(name=name))
 
             @strawberry.field
-            def smove(self,
-                      src: str,
-                      dst: str,
-                      value: str
-                      ) -> int:
-                return rr.smove(src=src, dst=dst, value=value)
+            def smove(self, src: str, dst: str, value: str) -> CommonString:
+                return CommonString(response=str(rr.smove(src=src, dst=dst, value=value)))
 
             @strawberry.field
-            def spop(self,
-                     name: str,
-                     count: typing.Optional[int]
-                     ) -> int:
-                return rr.spop(name=name, count=count)
+            def spop(self, name: str, count: typing.Optional[int] = None) -> CommonString:
+                result = rr.spop(name=name, count=count)
+                if isinstance(result, list):
+                    return CommonString(response=str(result))
+                return CommonString(response=str(result))
+
+            @strawberry.field
+            def lpush(self, name: str, values: typing.List[str]) -> CommonString:
+                return CommonString(response=str(rr.lpush(name, *values)))
+
+            @strawberry.field
+            def rpush(self, name: str, values: typing.List[str]) -> CommonString:
+                return CommonString(response=str(rr.rpush(name, *values)))
+
+            @strawberry.field
+            def lpop(self, name: str, count: typing.Optional[int] = None) -> CommonString:
+                result = rr.lpop(name, count)
+                if isinstance(result, list):
+                    return CommonString(response=str(result))
+                return CommonString(response=str(result))
+
+            @strawberry.field
+            def rpop(self, name: str, count: typing.Optional[int] = None) -> CommonString:
+                result = rr.rpop(name, count)
+                if isinstance(result, list):
+                    return CommonString(response=str(result))
+                return CommonString(response=str(result))
+
+            @strawberry.field
+            def lrange(self, name: str, start: int, end: int) -> CommonList:
+                return CommonList(response=rr.lrange(name, start, end))
+
+            @strawberry.field
+            def llen(self, name: str) -> CommonString:
+                return CommonString(response=str(rr.llen(name)))
+
+            @strawberry.field
+            def hset(self, name: str, key: str, value: str) -> CommonString:
+                return CommonString(response=str(rr.hset(name, key, value)))
+
+            @strawberry.field
+            def hget(self, name: str, key: str) -> CommonString:
+                return CommonString(response=rr.hget(name, key))
+
+            @strawberry.field
+            def hgetall(self, name: str) -> CommonDict:
+                result = rr.hgetall(name)
+                return CommonDict(response=[KeyValuePair(key=k, value=v) for k, v in result.items()])
+
+            @strawberry.field
+            def hdel(self, name: str, keys: typing.List[str]) -> CommonString:
+                return CommonString(response=str(rr.hdel(name, *keys)))
+
+            @strawberry.field
+            def hlen(self, name: str) -> CommonString:
+                return CommonString(response=str(rr.hlen(name)))
+
+            @strawberry.field
+            def hkeys(self, name: str) -> CommonList:
+                return CommonList(response=rr.hkeys(name))
+
+            @strawberry.field
+            def hvals(self, name: str) -> CommonList:
+                return CommonList(response=rr.hvals(name))
+
+            @strawberry.field
+            def zadd(self, name: str, members: typing.List[ScoreMember]) -> CommonString:
+                mapping = {m.member: m.score for m in members}
+                return CommonString(response=str(rr.zadd(name, mapping)))
+
+            @strawberry.field
+            def zrange(self, name: str, start: int, end: int, withscores: bool = False) -> CommonList:
+                return CommonList(response=rr.zrange(name, start, end, withscores=withscores))
+
+            @strawberry.field
+            def zrevrange(self, name: str, start: int, end: int, withscores: bool = False) -> CommonList:
+                return CommonList(response=rr.zrevrange(name, start, end, withscores=withscores))
+
+            @strawberry.field
+            def zcard(self, name: str) -> CommonString:
+                return CommonString(response=str(rr.zcard(name)))
+
+            @strawberry.field
+            def zscore(self, name: str, value: str) -> CommonString:
+                return CommonString(response=str(rr.zscore(name, value)))
+
+            @strawberry.field
+            def zrem(self, name: str, values: typing.List[str]) -> CommonString:
+                return CommonString(response=str(rr.zrem(name, *values)))
+
+            @strawberry.field
+            def zcount(self, name: str, min_score: float, max_score: float) -> CommonString:
+                return CommonString(response=str(rr.zcount(name, min_score, max_score)))
 
         self.schema = strawberry.Schema(Query)
         self.app.add_url_rule(

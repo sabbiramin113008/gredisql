@@ -16,7 +16,7 @@ long_description = (this_directory / "README.md").read_text()
 
 setup(
     name='gredisql',
-    version='0.0.9',
+    version='0.0.11',
     author='Sabbir Amin',
     author_email='sabbiramin.cse11ruet@gmail.com',
     description='A GraphQL interface for Redis Database. ',
