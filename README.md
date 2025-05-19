@@ -4,11 +4,11 @@ A GraphQL interface for Redis Database.
 
 ## Version Information
 
-Current Version: 0.0.9
+Current Version: 0.0.11
 
 ### Update History
 
-#### Version 0.0.9 (Latest)
+#### Version 0.0.11 (Latest)
 
 - Added support for Redis Sorted Sets operations
 - Added support for Redis Hash operations
